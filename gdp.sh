@@ -114,12 +114,12 @@ while read -r line; do
   if [[ "$line" == *"src/"* ]] && [[ "$line" != *"src/package.xml"* ]]
   then
     directory_name=$(echo "${line}" | cut -d'/' -f2)
-    meta_file_exist=$(echo "${dir_meta_file_exist_array[$directory_name]}")
+    meta_file_exist=${dir_meta_file_exist_array[$directory_name]}
     install -Dv "$directory""/${line}" "$WORKING_DIR"/"${line}" || { echo "Error copying file $line to $WORKING_DIR"; exit 1; }
     if [[ "${exceptional_metadata[*]}" =~ "$directory_name" ]]
     then
       temp_line=$(echo "${line}" | cut -d'/' -f3)
-      file_name=$(echo "${temp_line//$(echo "${exceptional_metadata_suffix[$directory_name]}")}")
+      file_name=${temp_line//${exceptional_metadata_suffix[$directory_name]}}
     else
       file_name=$(echo "${line}" | cut -d'/' -f3 | cut -d'.' -f1)
     fi
@@ -129,8 +129,10 @@ while read -r line; do
   fi
 done < "${CHANGED_SRC_LIST_FILE}"
 
-echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >> "${OUTPUT_XML_FILE}"
-echo "<Package xmlns=\"http://soap.sforce.com/2006/04/metadata\">" >> "${OUTPUT_XML_FILE}"
+{
+  echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+  echo "<Package xmlns=\"http://soap.sforce.com/2006/04/metadata\">"
+} >> "${OUTPUT_XML_FILE}"
 
 # Reading the file as an array
 readarray -t changed_file_path_list < "$CHANGED_SRC_LIST_FILE"
@@ -149,29 +151,34 @@ for line in "${changed_file_path_list[@]}"; do
     if [[ "${exceptional_metadata[*]}" =~ "$directory_name" ]]
     then
       temp_line=$(echo "${line}" | cut -d'/' -f3)
-      file_name=$(echo "${temp_line//$(echo "${exceptional_metadata_suffix[$directory_name]}")}")
+      file_name=${temp_line//${exceptional_metadata_suffix[$directory_name]}}
     else
       file_name=$(echo "${line}" | cut -d'/' -f3 | cut -d'.' -f1)
     fi
-    metadata_name=$(echo "${dir_xml_name_array[$directory_name]}")
+    metadata_name=${dir_xml_name_array[$directory_name]}
     if [[ "$directory_name" == "classes" ]]
     then
       apex_classes_list+=("$file_name")
     fi
     if [[ "$previous_file" != "$file_name" ]]
     then
-      echo "  <types>" >> "${OUTPUT_XML_FILE}"
-      echo "    <members>${file_name}</members>" >> "${OUTPUT_XML_FILE}"
-      echo "    <name>${metadata_name}</name>" >> "${OUTPUT_XML_FILE}"
-      echo "  </types>" >> "${OUTPUT_XML_FILE}"
+      {
+        echo "  <types>"
+        echo "    <members>${file_name}</members>"
+        echo "    <name>${metadata_name}</name>"
+        echo "  </types>"
+      } >> "${OUTPUT_XML_FILE}"
     fi
   fi
   iterator=$((iterator+1))
   previous_file=$file_name
 done
 
-echo "  <version>${API_VERSION}</version>" >> "${OUTPUT_XML_FILE}"
-echo "</Package>" >> "${OUTPUT_XML_FILE}"
+{
+  echo "  <version>${API_VERSION}</version>"
+  echo "</Package>"
+} >> "${OUTPUT_XML_FILE}"
+
 
 rm "${CHANGED_SRC_LIST_FILE}" || { echo "Error: Failed to remove file $CHANGED_SRC_LIST_FILE"; exit 1; }
 mv "${OUTPUT_XML_FILE}" "${WORKING_DIR}/src/package.xml" || { echo "Error: Failed to move package.xml file"; exit 1; }
@@ -183,7 +190,7 @@ do
   # Read test class for given apex class and appending to build.xml
   if [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
   then
-    test_class_name=$(echo "${test_class_mapping_array[$class_name]}")
+    test_class_name=${test_class_mapping_array[$class_name]}
     testClassNameList+="<runTest>${test_class_name}<\/runTest>\n\t\t"
   fi
 done
