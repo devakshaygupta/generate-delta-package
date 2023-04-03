@@ -1,4 +1,6 @@
 # Generate-delta-package
+[![CodeFactor](https://www.codefactor.io/repository/github/akshaygupta-dev/generate-delta-package/badge/main)](https://www.codefactor.io/repository/github/akshaygupta-dev/generate-delta-package/overview/main)
+
 This repository contains code for generating package for delta changes for Salesforce project using ANT based project structure.
 
 ## Before trying this program, please do the following steps: 
