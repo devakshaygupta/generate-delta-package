@@ -191,23 +191,32 @@ do
   if [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
   then
     test_class_name=${test_class_mapping_array[$class_name]}
-    testClassNameList+="<runTest>${test_class_name}<\/runTest>\n\t\t"
+    # If there are multiple test class for a given apex class
+    if [[ "$test_class_name" == *","* ]]
+    then
+      IFS="," read -ra test_classes_array <<< "$test_class_name"
+      testClassNameList+=$(printf "<runTest>%s<\/runTest>" "${test_classes_array[@]}")
+    else
+      testClassNameList+="<runTest>${test_class_name}<\/runTest>"
+    fi
   fi
 done
+
+echo "${testClassNameList}"
 
 for test_class_name in "${!test_class_list[@]}"
 do
   # If the given class itself is test class
   if [[ -f "$WORKING_DIR/src/classes/$test_class_name.cls" ]]
   then
-    testClassNameList+="<runTest>${test_class_name}<\/runTest>\n\t\t"
+    testClassNameList+="<runTest>${test_class_name}<\/runTest>"
   fi
 done
 
 # If no test classes found when change is detected in apex classes, failing the build.
 if [[ "$testClassNameList" == "" ]] && [[ -d "$WORKING_DIR/src/classes" ]]
 then
-    echo "No test classes found!!!"; exit 1;
+  echo "No test classes found!!!"; exit 1;
 fi
 
 # Adding test classes to build.xml
@@ -220,6 +229,7 @@ unset "${apex_classes_list[@]}"
 echo "Processing Completed!!"
 echo "Starting Validation...."
 
+# If changed file includes apex classes then run validation with test class, else run validation without test class.
 if [[ -d "$WORKING_DIR/src/classes" ]]
 then
   ant validateWithTestClass
