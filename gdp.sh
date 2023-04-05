@@ -115,7 +115,6 @@ while read -r line; do
   then
     directory_name=$(echo "${line}" | cut -d'/' -f2)
     meta_file_exist=${dir_meta_file_exist_array[$directory_name]}
-    install -Dv "$directory""/${line}" "$WORKING_DIR"/"${line}" || { echo "Error copying file $line to $WORKING_DIR"; exit 1; }
     if [[ "${exceptional_metadata[*]}" =~ "$directory_name" ]]
     then
       temp_line=$(echo "${line}" | cut -d'/' -f3)
@@ -123,7 +122,15 @@ while read -r line; do
     else
       file_name=$(echo "${line}" | cut -d'/' -f3 | cut -d'.' -f1)
     fi
-    if [[ "$meta_file_exist" == true ]] && [[ -f "$directory""/${line}-meta.xml" ]]; then
+    if [[ "$directory_name" == "aura" ]] || [[ "$directory_name" == "lwc" ]]
+    then
+      mkdir -p "$WORKING_DIR/src/$directory_name/$file_name"
+      cp -r "$directory/src/$directory_name/$file_name/"* "$WORKING_DIR/src/$directory_name/$file_name"  || { echo "Error copying folder $file_name to $WORKING_DIR/$directory_name"; exit 1; }
+    else
+      install -Dv "$directory""/${line}" "$WORKING_DIR"/"${line}" || { echo "Error copying file $line to $WORKING_DIR"; exit 1; }
+    fi
+    if [[ "$meta_file_exist" == true ]] && [[ -f "$directory""/${line}-meta.xml" ]]
+    then
       install -Dv "$directory""/${line}-meta.xml" "$WORKING_DIR"/"${line}-meta.xml" || { echo "Error copying meta file $line-meta.xml to $WORKING_DIR"; exit 1; }
     fi
   fi
@@ -188,7 +195,7 @@ testClassNameList=""
 for class_name in "${!test_class_mapping_array[@]}"
 do
   # Read test class for given apex class and appending to build.xml
-  if [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
+  if [[ -v apex_classes_list ]] && [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
   then
     test_class_name=${test_class_mapping_array[$class_name]}
     # If there are multiple test class for a given apex class
@@ -202,14 +209,12 @@ do
   fi
 done
 
-echo "${testClassNameList}"
-
 for test_class_name in "${!test_class_list[@]}"
 do
   # If the given class itself is test class
-  if [[ -f "$WORKING_DIR/src/classes/$test_class_name.cls" ]]
+  if [[ -f "$WORKING_DIR/src/classes/${test_class_list[test_class_name]}.cls" ]]
   then
-    testClassNameList+="<runTest>${test_class_name}<\/runTest>"
+    testClassNameList+="<runTest>${test_class_list[test_class_name]}<\/runTest>"
   fi
 done
 
