@@ -194,17 +194,20 @@ testClassNameList=""
 
 for class_name in "${!test_class_mapping_array[@]}"
 do
-  # Read test class for given apex class and appending to build.xml
-  if [[ -v apex_classes_list ]] && [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
+  if [[ -v apex_classes_list ]] && [[ -d "$WORKING_DIR/src/classes" ]] 
   then
-    test_class_name=${test_class_mapping_array[$class_name]}
-    # If there are multiple test class for a given apex class
-    if [[ "$test_class_name" == *","* ]]
+    # Read test class for given apex class and appending to build.xml
+    if [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
     then
-      IFS="," read -ra test_classes_array <<< "$test_class_name"
-      testClassNameList+=$(printf "<runTest>%s<\/runTest>" "${test_classes_array[@]}")
-    else
-      testClassNameList+="<runTest>${test_class_name}<\/runTest>"
+      test_class_name=${test_class_mapping_array[$class_name]}
+      # If there are multiple test class for a given apex class
+      if [[ "$test_class_name" == *","* ]]
+      then
+        IFS="," read -ra test_classes_array <<< "$test_class_name"
+        testClassNameList+=$(printf "<runTest>%s<\/runTest>" "${test_classes_array[@]}")
+      else
+        testClassNameList+="<runTest>${test_class_name}<\/runTest>"
+      fi
     fi
   fi
 done
@@ -230,7 +233,6 @@ then
   sed 's/<runTest><\/runTest>/'"${testClassNameList}"'/g' build_template.xml > build.xml || { echo "Error adding test classes to build.xml"; exit 1; }
 fi
 
-unset "${apex_classes_list[@]}"
 echo "Processing Completed!!"
 echo "Starting Validation...."
 
