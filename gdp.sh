@@ -162,6 +162,10 @@ for line in "${changed_file_path_list[@]}"; do
     else
       file_name=$(echo "${line}" | cut -d'/' -f3 | cut -d'.' -f1)
     fi
+    if [[ "$directory_name" == "reports" ]]
+    then
+      file_name=$file_name/$(echo "${line}" | cut -d'/' -f4 | cut -d'.' -f1)
+    fi
     metadata_name=${dir_xml_name_array[$directory_name]}
     if [[ "$directory_name" == "classes" ]]
     then
@@ -194,7 +198,7 @@ testClassNameList=""
 
 for class_name in "${!test_class_mapping_array[@]}"
 do
-  if [[ -v apex_classes_list ]] && [[ -d "$WORKING_DIR/src/classes" ]] 
+  if [[ -v apex_classes_list ]] && [[ -d "$WORKING_DIR/src/classes" ]]
   then
     # Read test class for given apex class and appending to build.xml
     if [[ "${apex_classes_list[*]}" =~ "$class_name" ]]
