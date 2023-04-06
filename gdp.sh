@@ -162,7 +162,8 @@ for line in "${changed_file_path_list[@]}"; do
     else
       file_name=$(echo "${line}" | cut -d'/' -f3 | cut -d'.' -f1)
     fi
-    if [[ "$directory_name" == "reports" ]]
+    # If reports are stored inside a folder
+    if [[ "$directory_name" == "reports" ]] && [[ -d "$WORKING_DIR/src/$directory_name/$file_name" ]]
     then
       file_name=$file_name/$(echo "${line}" | cut -d'/' -f4 | cut -d'.' -f1)
     fi
