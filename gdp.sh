@@ -247,5 +247,5 @@ then
   ant validateWithTestClass
 else
   cp build_template.xml build.xml
-  ant validate
+  ant validateWithoutTestClass
 fi

@@ -14,7 +14,7 @@ This repository contains code for generating package for delta changes for Sales
 ```
 ### To run validation without test class, execute the following:
 ```
-cp build_template.xml build.xml && ant validate
+cp build_template.xml build.xml && ant validateWithoutTestClass
 ```
 ### To run validation with test class, execute the following:
 ```

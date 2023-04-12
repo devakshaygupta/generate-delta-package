@@ -48,13 +48,14 @@
   </taskdef>
 
   <!-- Shows check only; never actually saves to the server -->
-  <target name="validate">
+  <target name="validateWithoutTestClass">
     <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="delta-changes/src" checkOnly="true"/>
   </target>
 
   <target name="validateWithTestClass">
     <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="delta-changes/src" checkOnly="true" testlevel="RunSpecifiedTests">
-      <runTest></runTest>  </sf:deploy>
+      <runTest></runTest>
+    </sf:deploy>
   </target>
 
 </project>
