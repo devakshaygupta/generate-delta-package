@@ -1,4 +1,4 @@
-<project name="phoenix-i" default="validate" basedir="."
+<project name="gdp" default="validate" basedir="."
   xmlns:sf="antlib:com.salesforce">
 
   <property file="build.properties"/>
